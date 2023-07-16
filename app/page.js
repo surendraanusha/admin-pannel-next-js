@@ -1,113 +1,242 @@
-import Image from 'next/image'
-
+/* eslint-disable @next/next/no-img-element */
+"use client";
+import { Fragment, useEffect, useState } from "react";
+import { FiEdit } from "react-icons/fi";
+import { AiFillDelete } from "react-icons/ai"; 
+import { GrFormNext,GrFormPrevious } from "react-icons/gr";
+import { BiFirstPage, BiLastPage } from "react-icons/bi"
+const buttonsData = {
+  1:{
+    lable:1,
+    startIndex:0
+  },
+  2:{
+    lable:2,
+    startIndex:10
+  },
+  3:{
+    lable:3,
+    startIndex:20
+  },
+  4:{
+    lable:4,
+    startIndex:30
+  },
+  5:{
+    lable:5,
+    startIndex:40,
+  },
+}
 export default function Home() {
+
+  const [data, setData] = useState([]);
+  const [inputValue, setInputValue] = useState("");
+  const [headerCheckBox, setCheckBoxStatus]  = useState(false)
+  const [startPage,setStartPage] = useState(1);
+
+  useEffect(() => {
+    (async () => {
+      const API = 'https://geektrust.s3-ap-southeast-1.amazonaws.com/adminui-problem/members.json';
+      const response = await fetch(API);
+      const data = await response.json();
+      const payLoad = data.map((item) => ({
+        id: item.id,
+        name: item.name,
+        email: item.email,
+        role: item.role,
+        status: false
+      }));
+      setData(payLoad.slice(buttonsData[startPage].startIndex,buttonsData[startPage].startIndex + 10));
+    })();
+  }, [startPage]);
+  
+  const handleDeleteUser = (userId) => {
+    const filteredData = data.filter(user => user.id !== userId)
+    setData(filteredData)
+  }
+
+  const handleCheckBox = (event) => {
+    const isChecked = event.target.checked;
+    setCheckBoxStatus(isChecked);
+    setData(prevData => {
+      return prevData.map(user => ({
+        ...user,
+        status: isChecked
+      }));
+    });
+  };
+  
+  const handleStatus = (id) => {
+    setData(prevData => {
+      return prevData.map(user => {
+        if (user.id === id) {
+          return {
+            ...user,
+            status: !user.status
+          };
+        }
+        return user;
+      });
+    });
+  };
+  
+  const handleSearchUser = (event) => {
+    setInputValue(event.target.value);
+  }
+
+  const NoRecordsFound = () => {
+    return (
+      <div className="flex flex-col justify-center items-center">
+        <img src="/no_records1.svg" alt="norecords" className="h-[70%] w-[60%]"/>
+        <h1 className="text-gray-500 font-bold text-2xl py-3">Sorry we couldn&apos;t find out user, Try another... </h1>
+      </div>
+    )
+  }
+
+  const deletedAllRecords = () => {
+    return (
+      <div className="flex flex-col justify-center items-center">
+        <img src="/deleted_all.svg" alt="norecords" className="h-[45%] w-[40%]"/>
+        <h1 className="text-gray-500 font-bold text-2xl py-3">You are deleted all records in current page... </h1>
+      </div>
+    )
+  }
+
+  const handleChangePageNumber = (pageNumber) => {
+    if(headerCheckBox){
+      setCheckBoxStatus(!headerCheckBox)
+    }
+    setStartPage(pageNumber)
+  }
+
+  const handleNextPage = () => {
+    if(headerCheckBox){
+      setCheckBoxStatus(!headerCheckBox)
+    }
+    if(startPage !== 5){
+      setStartPage(startPage + 1)
+    }
+  }
+
+  const handlePrevPage = () => {
+    if(headerCheckBox){
+      setCheckBoxStatus(!headerCheckBox)
+    }
+    if(startPage !== 1){
+      setStartPage(startPage - 1)
+    }
+  }
+
+  const handleLastPage = () => {
+    if(headerCheckBox){
+      setCheckBoxStatus(!headerCheckBox)
+    }
+    if(startPage !== 5){
+      setStartPage(5)
+    }
+  }
+
+  const handleFirstPage = () => {
+    if(headerCheckBox){
+      setCheckBoxStatus(!headerCheckBox)
+    }
+    if(startPage !== 1){
+      setStartPage(1)
+    }
+  }
+
+  const handleDeleteAll = () => {
+    const beforeAction = data.filter(user => user.status !== true);
+    setData(beforeAction);
+  }
+
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.js</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <div className="parent-container">
+      <div>
+        <input type="text" placeholder="Search by Name, Email or Role" className="serch-input" onChange={handleSearchUser}/>
+      </div>
+      <section>
+        <div className="total-container">
+          <div className="header-container">
+            <div className="fields-col-input">
+              <input type="checkbox" className="check-box" checked={headerCheckBox} onChange={handleCheckBox} />
+            </div>
+            <div className="fields-col fields">
+              <p>Name</p>
+            </div>
+            <div className="fields-col-email fields">
+              <p>Email</p>
+            </div>
+            <div className="fields-col fields">
+              <p>Role</p>
+            </div>
+            <div className="fields-col fields">
+              <p>Actions</p>
+            </div>
+          </div>
+          <div className="body-container">
+            {data.filter(data => data.name.toLowerCase().includes(inputValue.toLowerCase()) || data.email.toLowerCase().includes(inputValue.toLowerCase()) || data.role.toLowerCase().includes(inputValue.toLowerCase())).length !== 0 ?
+              (data.filter(data => data.name.toLowerCase().includes(inputValue.toLowerCase()) || data.email.toLowerCase().includes(inputValue.toLowerCase()) || data.role.toLowerCase().includes(inputValue.toLowerCase())).map((data) =>(
+              <div className={`header-container ${data.status ? "bg-[#f1f1f1]":"bg-transparent"}`} key={data.id}>
+                <div className="fields-col-input">
+                  <input type="checkbox"  className="check-box" checked={data.status} onChange={()=>handleStatus(data.id)}/>
+                </div>
+                <div className="fields-col">
+                  <p>{data.name}</p>
+                </div>
+                <div className="fields-col-email">
+                  <p>{data.email}</p>
+                </div>
+                <div className="fields-col">
+                  <p>{data.role}</p>
+                </div>
+                <div className="fields-col">
+                  <div className="buttons-container">
+                    <button>
+                      <FiEdit className="edit-icon"/>
+                    </button>
+                    <button onClick={() => handleDeleteUser(data.id)}>
+                      <AiFillDelete className="edit-icon2"/>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))) : (
+              <Fragment>
+                {headerCheckBox === true ? deletedAllRecords(): NoRecordsFound()} 
+              </Fragment>
+            )}       
+          </div>
         </div>
-      </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800 hover:dark:bg-opacity-30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore the Next.js 13 playground.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+      </section>
+      <section>
+        <div className="flex py-3 bg-slate-200 items-center px-3">
+          <button className="py-3 px-4 text-white rounded-full bg-pink-500 text-sm" onClick={handleDeleteAll}>Delete Selected</button>
+          <div className="flex justify-center items-center self-center gap-6 lg:gap-10 grow">
+            <button onClick={handleFirstPage} className={`paginate-buttton rounded-full flex items-center justify-center h-10 ${startPage !== 1 ? "paginate-active" : "paginate-in-active cursor-not-allowed" }`}>
+              <BiFirstPage />
+            </button>
+            <button onClick={handlePrevPage} className={`paginate-buttton rounded-full flex items-center justify-center h-10 ${startPage !== 1 ? "paginate-active" : "paginate-in-active cursor-not-allowed" }`}>
+              <GrFormPrevious />
+            </button>
+            <div className="flex justify-center gap-6 lg:gap-8">
+              {Object.keys(buttonsData).map((buttonValue) =>(
+                <button key={buttonValue} onClick={() => handleChangePageNumber(buttonsData[buttonValue].lable)} className={`paginate-buttton rounded-full ${startPage === buttonsData[buttonValue].lable ? "paginate-active" : "paginate-in-active" }`}>
+                {buttonsData[buttonValue].lable}
+                </button>
+              ))}
+            </div>
+            <button onClick={handleNextPage} className={`paginate-buttton rounded-full flex items-center justify-center h-10 ${startPage !== 5 ? "paginate-active" : "paginate-in-active cursor-not-allowed" }`}>
+              <GrFormNext />
+            </button>
+            <button onClick={handleLastPage} className={`paginate-buttton rounded-full flex items-center justify-center h-10 ${startPage !== 5 ? "paginate-active" : "paginate-in-active cursor-not-allowed" }`}>
+              <BiLastPage />
+            </button>
+          </div> 
+        </div>
+      </section>
+    </div>
+    
   )
 }

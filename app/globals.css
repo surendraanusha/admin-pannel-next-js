@@ -16,12 +16,94 @@
   }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+.serch-input{
+  width: 100%;
+  border: 1px solid gray;
+  outline: none;
+  padding: 10px 3px;
+}
+.parent-container{
+  max-width: 1200px;
+  margin: auto;
+  padding: 40px 10px;
+}
+
+.header-container{
+  display: flex;
+  border-bottom: 1px solid gray;
+  padding: 5px 0px;
+}
+.check-box{
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+.fields-col-input{
+  padding: 8px 8px;
+  flex: 15%;
+  align-items: center;
+  display: flex;
+}
+.fields-col{
+  padding: 8px 8px;
+  flex: 20%;
+  align-items: center;
+  display: flex;
+}
+.fields-col-email{
+  padding: 8px 8px;
+  flex: 25%;
+  align-items: center;
+  display: flex;
+}
+
+@media screen and (min-width:768px) {
+  .fields-col-input{
+    flex: 12%;
+  }
+  .fields-col{
+    flex: 20%;
+  }
+  .fields-col-email{
+    flex: 28%;
+  }
+}
+.fields{
+  font-weight: 700;
+  color: black;
+}
+.edit-icon {
+  font-size: 23px;
+  color: rgb(109, 109, 168);
+  cursor: pointer;
+}
+.edit-icon2 {
+  font-size: 23px;
+  color: rgb(226, 92, 31);
+  cursor: pointer;
+}
+.buttons-container{
+  display: flex;
+  gap: 30px;
+}
+
+.paginate-buttton{
+  font-size: 18px;
+  font-family: 'Roboto';
+  font-weight: 700;
+  padding: 6px;
+  border: 1px solid rgb(72, 96, 228);
+  width: 40px;
+}
+.paginate-buttton:hover{
+  color: #fff;
+  background-color: rgb(72, 96, 228);
+}
+.paginate-in-active{
+  background-color: transparent;
+  color: rgb(72, 96, 228);
+}
+.paginate-active{
+  color: #fff;
+  background-color: rgb(72, 96, 228);
 }
