@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 import { Fragment, useEffect, useState } from "react";
 import { FiEdit } from "react-icons/fi";
@@ -27,12 +26,28 @@ const buttonsData = {
     startIndex:40,
   },
 }
+const dropDownMenu = [
+  {
+    id:1,
+    lable: "Role",
+    value: "member",
+  },
+  {
+    id:2,
+    lable: "Role",
+    value: "admin",
+  }
+]
 export default function Home() {
 
   const [data, setData] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [headerCheckBox, setCheckBoxStatus]  = useState(false)
   const [startPage,setStartPage] = useState(1);
+  const [userName, setUserName] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+  const [role, setRole] = useState("");
+  const [selectedPerson, setSelectedPerson] = useState(null);
 
   useEffect(() => {
     (async () => {
@@ -150,9 +165,36 @@ export default function Home() {
     setData(beforeAction);
   }
 
+  const handleUpdateDetails = (event) => {
+    event.preventDefault();
+    const dispatchDetails = {
+      id:selectedPerson.id,
+      name: userName,
+      email: userEmail,
+      role: role
+    }
+    if (selectedPerson) {
+      setData((prevPeople) =>
+        prevPeople.map((person) =>
+          person.id === dispatchDetails.id
+            ? { ...person, name: dispatchDetails.name, email: dispatchDetails.email,role: dispatchDetails.role}
+            : person
+        )
+      );
+      setSelectedPerson(null);
+    }
+  }
+
+  const handleUpdateUserInfo = (userObj) => {
+    setSelectedPerson(userObj)
+    setUserName(userObj.name)
+    setUserEmail(userObj.email)
+    setRole(userObj.role)
+  }
+
 
   return (
-    <div className="parent-container">
+    <div className="parent-container relative">
       <div>
         <input type="text" placeholder="Search by Name, Email or Role" className="serch-input" onChange={handleSearchUser}/>
       </div>
@@ -193,7 +235,7 @@ export default function Home() {
                 </div>
                 <div className="fields-col">
                   <div className="buttons-container">
-                    <button>
+                    <button onClick={()=>handleUpdateUserInfo(data)}>
                       <FiEdit className="edit-icon"/>
                     </button>
                     <button onClick={() => handleDeleteUser(data.id)}>
@@ -236,6 +278,40 @@ export default function Home() {
           </div> 
         </div>
       </section>
+      {selectedPerson && (
+        <section>
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity h-screen w-full top-0 z-50 flex flex-col justify-center items-center">
+          <form className="form-container bg-white rounded-lg px-5 py-5 ease-out duration-300" onSubmit={handleUpdateDetails}>
+            <div className="flex flex-wrap gap-8">
+              <div className="flex flex-col gap-1 items-start w-80">
+                <label htmlFor="name" className="form-lable">Name</label>
+                <input type="text" name="name" id="name" value={userName}  placeholder="Name" onChange={(event)=>setUserName(event.target.value)} className="form-input w-full" />
+              </div>
+              <div className="flex flex-col gap-1 items-start w-80">
+                <label htmlFor="email" className="form-lable">Email</label>
+                <input type="email" name="email" id="email" value={userEmail} placeholder="Email" onChange={(event)=>setUserEmail(event.target.value)} className="form-input w-full"/>
+              </div>
+              <div className="flex flex-col gap-1 items-start w-80">
+                <label htmlFor="role" className="form-lable">Role</label>
+                <select name="role" id="role" value={role} className="form-input w-full" onChange={(e)=>setRole(e.target.value)}>
+                  {dropDownMenu.map(data=>(
+                    <option key={data.id} value={data.value}>{data.value}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="flex gap-10 py-10">
+              <button onClick={()=>setSelectedPerson(null)} type="cancel" className="bg-gray-700 py-1 px-4 rounded-lg text-white font-semibold text-lg hover:bg-slate-500">
+                Cancel
+              </button>
+              <button type="submit" className="bg-green-700 py-1 px-4 rounded-lg text-white font-semibold text-lg hover:bg-green-900">
+                Save
+              </button>
+            </div>
+          </form>       
+        </div>
+      </section>
+      )}
     </div>
     
   )

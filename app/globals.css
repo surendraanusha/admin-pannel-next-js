@@ -107,3 +107,25 @@
   color: #fff;
   background-color: rgb(72, 96, 228);
 }
+
+.form-input{
+  border: 1px solid gray;
+  outline: none;
+  padding: 3px;
+  border-radius: 5px;
+}
+
+.form-lable{
+  font-weight: 700;
+  color: #000;
+  margin-right: 2px;
+}
+
+.form-container{
+  max-width: 80rem;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
